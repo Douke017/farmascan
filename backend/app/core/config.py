@@ -3,13 +3,15 @@ from functools import lru_cache
 import os
 
 
-def _fix_heroku_db_url(url: str) -> str:
+def _fix_db_url(url: str) -> str:
     """
-    Heroku Postgres provides DATABASE_URL as postgres://... but asyncpg needs
-    postgresql+asyncpg://... — this fixes it automatically.
+    Both Heroku (postgres://) and Supabase (postgresql://) need to be
+    converted to postgresql+asyncpg:// for SQLAlchemy async engine.
     """
     if url.startswith("postgres://"):
-        url = url.replace("postgres://", "postgresql+asyncpg://", 1)
+        return url.replace("postgres://", "postgresql+asyncpg://", 1)
+    if url.startswith("postgresql://"):
+        return url.replace("postgresql://", "postgresql+asyncpg://", 1)
     return url
 
 
@@ -42,7 +44,7 @@ class Settings(BaseSettings):
 
     @property
     def db_url(self) -> str:
-        return _fix_heroku_db_url(self.DATABASE_URL)
+        return _fix_db_url(self.DATABASE_URL)
 
     class Config:
         env_file = ".env"

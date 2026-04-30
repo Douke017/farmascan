@@ -66,6 +66,7 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
+              "serviceWorker": "ngsw-config.json",
               "budgets": [
                 {
                   "type": "initial",

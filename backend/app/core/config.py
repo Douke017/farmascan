@@ -25,7 +25,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite+aiosqlite:///./farmascan.db"
 
     # CORS — comma-separated list (Heroku doesn't parse JSON arrays in env vars)
-    CORS_ORIGINS: str = "http://localhost:4200,http://localhost:80,https://*.netlify.app"
+    # NOTE: CORSMiddleware does NOT support wildcards in origins — use exact URLs.
+    CORS_ORIGINS: str = "http://localhost:4200,http://localhost:80,https://farmascan.netlify.app"
 
     @property
     def cors_origins_list(self) -> list[str]:

@@ -1,0 +1,167 @@
+<section class="upload-page">
+
+  <!-- Header -->
+  <header class="upload-header">
+    <a routerLink="/" class="upload-header__back">← Volver al escáner</a>
+    <div class="upload-header__title">
+      <span class="upload-header__icon">⚕</span>
+      <span>Cargar inventario</span>
+    </div>
+    <span></span>
+  </header>
+
+  <main class="upload-main container">
+
+    <div class="upload-card card">
+      <h1 class="upload-card__title">Subir archivo de inventario</h1>
+      <p class="upload-card__subtitle">
+        Archivos xlsx o csv · Hasta 500 MB · 1,000,000+ filas soportadas<br/>
+        La curva se calculará automáticamente desde la tabla de referencia del archivo.
+      </p>
+
+      <!-- ─── Dropzone ─────────────────────────────────────────────── -->
+      @if (state === 'idle' || state === 'error') {
+        <div
+          class="dropzone"
+          [class.dropzone--dragging]="isDragging"
+          [class.dropzone--has-file]="!!selectedFile"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave()"
+          (drop)="onDrop($event)"
+          (click)="fileInput.click()"
+          role="button"
+          tabindex="0"
+          aria-label="Zona de carga de archivo"
+          (keydown.enter)="fileInput.click()"
+        >
+          <input
+            #fileInput
+            type="file"
+            accept=".xlsx,.xls,.csv"
+            style="display:none"
+            (change)="onFileSelected($event)"
+          />
+
+          @if (!selectedFile) {
+            <div class="dropzone__content">
+              <span class="dropzone__icon">⊞</span>
+              <p class="dropzone__label">Arrastra el archivo aquí</p>
+              <p class="dropzone__hint">o haz clic para seleccionar</p>
+              <div class="dropzone__types">
+                <span class="type-chip">xlsx</span>
+                <span class="type-chip">xls</span>
+                <span class="type-chip">csv</span>
+              </div>
+            </div>
+          } @else {
+            <div class="dropzone__file-info">
+              <span class="dropzone__file-icon">📄</span>
+              <div>
+                <p class="dropzone__file-name">{{ selectedFile.name }}</p>
+                <p class="dropzone__file-size">{{ formatBytes(selectedFile.size) }}</p>
+              </div>
+              <span class="dropzone__change-hint">Clic para cambiar</span>
+            </div>
+          }
+        </div>
+
+        <!-- Error message -->
+        @if (state === 'error') {
+          <div class="upload-error fade-in" role="alert">
+            <span>⚠</span> {{ errorMessage }}
+          </div>
+        }
+
+        <!-- Upload button -->
+        <button
+          class="btn btn--primary upload-btn"
+          [disabled]="!selectedFile || state === 'error'"
+          (click)="upload()"
+        >
+          ↑ &nbsp;Iniciar procesamiento
+        </button>
+      }
+
+      <!-- ─── Uploading progress ──────────────────────────────────── -->
+      @if (state === 'uploading') {
+        <div class="progress-section fade-in">
+          <div class="progress-info">
+            <span class="progress-info__label">Subiendo archivo...</span>
+            <span class="progress-info__pct">{{ uploadProgress }}%</span>
+          </div>
+          <div class="progress-bar" role="progressbar" [attr.aria-valuenow]="uploadProgress">
+            <div class="progress-bar__fill" [style.width]="uploadProgress + '%'"></div>
+          </div>
+          <p class="progress-hint">Espere mientras se transfiere el archivo</p>
+        </div>
+      }
+
+      <!-- ─── Processing status ───────────────────────────────────── -->
+      @if (state === 'processing' && job) {
+        <div class="progress-section fade-in">
+          <div class="processing-header">
+            <div class="spinner"></div>
+            <span class="processing-header__label">Procesando inventario...</span>
+          </div>
+          <div class="progress-info">
+            <span class="progress-info__label">
+              {{ job.processed_rows | number }} / {{ job.total_rows | number }} filas
+            </span>
+            <span class="progress-info__pct">{{ job.progress_pct }}%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-bar__fill" [style.width]="job.progress_pct + '%'"></div>
+          </div>
+          <p class="progress-hint">
+            Calculando curvas y cargando en base de datos...
+          </p>
+        </div>
+      }
+
+      <!-- ─── Done ────────────────────────────────────────────────── -->
+      @if (state === 'done' && job) {
+        <div class="done-section fade-in">
+          <div class="done-section__icon">✓</div>
+          <h2 class="done-section__title">¡Inventario cargado!</h2>
+          <p class="done-section__subtitle">
+            {{ job.total_rows | number }} productos procesados correctamente
+          </p>
+          <div class="done-section__actions">
+            <a routerLink="/" class="btn btn--primary">⌕ &nbsp;Ir a escanear</a>
+            <button class="btn btn--secondary" (click)="reset()">Subir otro archivo</button>
+          </div>
+        </div>
+      }
+
+    </div>
+
+    <!-- Instructions -->
+    <div class="instructions card">
+      <h2 class="instructions__title">¿Cómo funciona?</h2>
+      <ol class="instructions__list">
+        <li>
+          <span class="step-num">1</span>
+          <div>
+            <strong>Exporta el inventario</strong> desde tu sistema como archivo xlsx o csv.
+            El archivo debe incluir las hojas de datos y la tabla de referencia de curvas.
+          </div>
+        </li>
+        <li>
+          <span class="step-num">2</span>
+          <div>
+            <strong>Sube el archivo</strong> aquí. El sistema procesará automáticamente
+            el inventario y calculará la curva para cada producto.
+          </div>
+        </li>
+        <li>
+          <span class="step-num">3</span>
+          <div>
+            <strong>Escanea los LPN</strong> con el escáner Zebra. El sistema buscará
+            automáticamente en el inventario cargado.
+          </div>
+        </li>
+      </ol>
+    </div>
+
+  </main>
+</section>

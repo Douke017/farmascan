@@ -1,0 +1,151 @@
+<section class="scanner-page">
+  <!-- ─── Header ─────────────────────────────────────────────────── -->
+  <header class="scanner-header">
+    <div class="scanner-header__logo">
+      <span class="scanner-header__icon">⚕</span>
+      <span class="scanner-header__brand">FarmaScan</span>
+    </div>
+    <a routerLink="/upload" class="scanner-header__upload-btn" title="Subir inventario">
+      <span>↑</span> Subir archivo
+    </a>
+  </header>
+
+  <main class="scanner-main container">
+
+    <!-- ─── Search bar ──────────────────────────────────────────────── -->
+    <div class="search-section">
+      <label class="search-label" for="lpnInputField">
+        <span class="search-label__scanner-icon" [class.active]="state === 'scanning'">◉</span>
+        Escanear o ingresar Nro LPN
+      </label>
+
+      <div class="search-bar">
+        <input
+          #lpnInputRef
+          id="lpnInputField"
+          type="text"
+          class="input-field search-bar__input"
+          [(ngModel)]="lpnInput"
+          (keydown)="onKeydown($event)"
+          (input)="onInput()"
+          placeholder="Ej: CSB21938475612"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="characters"
+          spellcheck="false"
+          inputmode="text"
+          aria-label="Código LPN del escáner"
+        />
+        <button
+          class="btn btn--primary search-bar__btn"
+          [disabled]="lpnInput.trim().length < 3 || state === 'scanning'"
+          (click)="performSearch(lpnInput)"
+          aria-label="Buscar"
+        >
+          @if (state === 'scanning') {
+            <span class="spinner" style="width:22px;height:22px;border-width:2.5px"></span>
+          } @else {
+            <span>⌕</span>
+          }
+        </button>
+
+        @if (lpnInput.length > 0) {
+          <button class="search-bar__clear" (click)="onClear()" aria-label="Limpiar">✕</button>
+        }
+      </div>
+
+      <p class="search-hint">
+        El escáner Zebra enviará el código automáticamente a este campo
+      </p>
+    </div>
+
+    <!-- ─── Result card ─────────────────────────────────────────────── -->
+    @if (state === 'found' && result) {
+      <div class="result-card card fade-in" role="region" aria-label="Resultado del escaneo">
+
+        <!-- LPN Header -->
+        <div class="result-card__header">
+          <div class="result-card__lpn-badge">
+            <span class="result-card__lpn-icon">▣</span>
+            <span class="result-card__lpn-code">{{ result.nro_lpn }}</span>
+          </div>
+          <div class="result-card__badges">
+            <span
+              class="status-badge status-badge--{{ getStatusClass(result.estado) }}"
+              [attr.aria-label]="'Estado: ' + result.estado"
+            >
+              <span>{{ getStatusIcon(result.estado) }}</span>
+              {{ result.estado }}
+            </span>
+            <span
+              class="curva-badge curva-badge--{{ getCurvaClass(result.curva) }}"
+              [title]="'Curva de rotación: ' + result.curva"
+              [attr.aria-label]="'Curva ' + result.curva"
+            >
+              {{ result.curva }}
+            </span>
+          </div>
+        </div>
+
+        <div class="result-card__divider"></div>
+
+        <!-- Product details -->
+        <div class="result-card__body">
+          <div class="result-field">
+            <span class="result-field__label">Código Producto</span>
+            <span class="result-field__value result-field__value--mono">{{ result.producto }}</span>
+          </div>
+          <div class="result-field">
+            <span class="result-field__label">Descripción</span>
+            <span class="result-field__value result-field__value--desc">{{ result.descripcion }}</span>
+          </div>
+        </div>
+
+        <!-- Quick scan next -->
+        <button class="btn btn--secondary result-card__next-btn" (click)="onClear()">
+          ⟳ &nbsp;Siguiente escaneo
+        </button>
+      </div>
+    }
+
+    <!-- ─── Not found ───────────────────────────────────────────────── -->
+    @if (state === 'not-found') {
+      <div class="state-message state-message--error card fade-in" role="alert">
+        <span class="state-message__icon">⚠</span>
+        <div>
+          <p class="state-message__title">LPN no encontrado</p>
+          <p class="state-message__desc">{{ errorMessage }}</p>
+          <p class="state-message__hint">Verifique que el inventario fue cargado correctamente.</p>
+        </div>
+        <button class="btn btn--secondary" (click)="onClear()">Volver</button>
+      </div>
+    }
+
+    <!-- ─── Connection error ─────────────────────────────────────────── -->
+    @if (state === 'error') {
+      <div class="state-message state-message--error card fade-in" role="alert">
+        <span class="state-message__icon">✕</span>
+        <div>
+          <p class="state-message__title">Error de conexión</p>
+          <p class="state-message__desc">{{ errorMessage }}</p>
+        </div>
+        <button class="btn btn--secondary" (click)="onClear()">Reintentar</button>
+      </div>
+    }
+
+    <!-- ─── Idle state hint ──────────────────────────────────────────── -->
+    @if (state === 'idle') {
+      <div class="idle-hint">
+        <div class="idle-hint__graphic">
+          <div class="idle-hint__ring idle-hint__ring--1"></div>
+          <div class="idle-hint__ring idle-hint__ring--2"></div>
+          <div class="idle-hint__ring idle-hint__ring--3"></div>
+          <span class="idle-hint__symbol">▣</span>
+        </div>
+        <p class="idle-hint__text">Listo para escanear</p>
+        <p class="idle-hint__subtext">Apunte el escáner al código de barras del LPN</p>
+      </div>
+    }
+
+  </main>
+</section>

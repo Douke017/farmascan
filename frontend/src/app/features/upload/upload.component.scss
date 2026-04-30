@@ -1,0 +1,335 @@
+.upload-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+/* ─── Header ──────────────────────────────────────────────── */
+.upload-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1.5rem;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  &__back {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-primary);
+    text-decoration: none;
+    &:hover { text-decoration: underline; }
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+
+  &__icon { font-size: 1.25rem; color: var(--color-primary); }
+}
+
+/* ─── Main ────────────────────────────────────────────────── */
+.upload-main {
+  padding-top: 2rem;
+  padding-bottom: 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ─── Card ────────────────────────────────────────────────── */
+.upload-card {
+  &__title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, var(--color-text) 60%, var(--color-primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  &__subtitle {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+    margin-bottom: 1.75rem;
+  }
+}
+
+/* ─── Dropzone ────────────────────────────────────────────── */
+.dropzone {
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  background: var(--color-surface-2);
+
+  &:hover, &:focus-visible {
+    border-color: var(--color-primary);
+    background: var(--color-primary-glow);
+    outline: none;
+  }
+
+  &--dragging {
+    border-color: var(--color-primary);
+    background: var(--color-primary-glow);
+    transform: scale(1.01);
+    box-shadow: var(--shadow-glow);
+  }
+
+  &--has-file {
+    border-style: solid;
+    border-color: var(--color-primary);
+    background: rgba(59, 130, 246, 0.05);
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
+  &__icon {
+    font-size: 3rem;
+    color: var(--color-text-muted);
+    line-height: 1;
+  }
+
+  &__label {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  &__hint {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
+
+  &__types {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  &__file-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-align: left;
+  }
+
+  &__file-icon { font-size: 2.25rem; }
+
+  &__file-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text);
+    word-break: break-all;
+  }
+
+  &__file-size {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin-top: 0.2rem;
+  }
+
+  &__change-hint {
+    font-size: 0.75rem;
+    color: var(--color-primary);
+    margin-left: auto;
+    white-space: nowrap;
+  }
+}
+
+/* ─── Type chip ───────────────────────────────────────────── */
+.type-chip {
+  padding: 0.2rem 0.6rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ─── Error ────────────────────────────────────────────────── */
+.upload-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(244, 63, 94, 0.1);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  border-radius: var(--radius-sm);
+  color: #f43f5e;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+
+/* ─── Upload button ───────────────────────────────────────── */
+.upload-btn {
+  width: 100%;
+  margin-top: 1.25rem;
+  font-size: 1rem;
+}
+
+/* ─── Progress ────────────────────────────────────────────── */
+.progress-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  padding: 0.5rem 0;
+}
+
+.processing-header {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+
+  &__label {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--color-text);
+  }
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  &__label {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__pct {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--color-surface-2);
+  border-radius: 99px;
+  overflow: hidden;
+
+  &__fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+}
+
+.progress-hint {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  opacity: 0.7;
+}
+
+/* ─── Done ────────────────────────────────────────────────── */
+.done-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.875rem;
+  text-align: center;
+  padding: 1rem 0;
+
+  &__icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(34, 197, 94, 0.15);
+    border: 2px solid var(--color-ubicado);
+    color: var(--color-ubicado);
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__title {
+    font-size: 1.4rem;
+    font-weight: 800;
+  }
+
+  &__subtitle {
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+}
+
+/* ─── Instructions ────────────────────────────────────────── */
+.instructions {
+  &__title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.8rem;
+  }
+
+  &__list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+
+    li {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+      line-height: 1.6;
+
+      strong { color: var(--color-text); }
+    }
+  }
+}
+
+.step-num {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-primary-glow);
+  border: 1.5px solid var(--color-primary);
+  color: var(--color-primary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

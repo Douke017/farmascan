@@ -1,0 +1,3 @@
+/* Angular HTML5 routing — Netlify redirects all paths to index.html */
+/*   https://docs.netlify.com/routing/redirects/                      */
+/index.html  200

@@ -1,6 +1,7 @@
 import {
-  Component, OnInit, OnDestroy, ViewChild, ElementRef,
-  ChangeDetectionStrategy, ChangeDetectorRef, signal, computed
+  Component, OnInit, OnDestroy, AfterViewChecked,
+  ViewChild, ElementRef, HostListener,
+  ChangeDetectionStrategy, ChangeDetectorRef
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -20,7 +21,7 @@ type ScanState = 'idle' | 'scanning' | 'found' | 'not-found' | 'error';
   styleUrl: './scanner.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ScannerComponent implements OnInit, OnDestroy {
+export class ScannerComponent implements OnInit, AfterViewChecked, OnDestroy {
   @ViewChild('lpnInputRef') lpnInputRef!: ElementRef<HTMLInputElement>;
 
   // ─── State ──────────────────────────────────────────────────────────────
@@ -37,6 +38,8 @@ export class ScannerComponent implements OnInit, OnDestroy {
   private readonly SCAN_MIN_LENGTH = 6;
   private searchSubject = new Subject<string>();
   private destroy$ = new Subject<void>();
+  /** Set to true whenever we need to re-focus the input on the next view check. */
+  private needsFocus = false;
 
   constructor(
     private inventoryService: InventoryService,
@@ -58,6 +61,19 @@ export class ScannerComponent implements OnInit, OnDestroy {
     this.focusInput();
   }
 
+  /**
+   * Called after every view check. Moves focus back to the input as soon as
+   * Angular finishes re-rendering (e.g. after @if shows/hides the result card).
+   * This prevents the Zebra scanner from sending keystrokes to Chrome's address
+   * bar when the DOM changes and focus is momentarily lost.
+   */
+  ngAfterViewChecked(): void {
+    if (this.needsFocus) {
+      this.needsFocus = false;
+      this.lpnInputRef?.nativeElement?.focus();
+    }
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -65,7 +81,52 @@ export class ScannerComponent implements OnInit, OnDestroy {
 
   // ─── Auto-focus after result or on blur ─────────────────────────────────
   focusInput(): void {
-    setTimeout(() => this.lpnInputRef?.nativeElement?.focus(), 100);
+    // Schedule via ngAfterViewChecked so focus happens AFTER Angular finishes
+    // rendering (avoids race condition with @if adding/removing DOM nodes).
+    this.needsFocus = true;
+  }
+
+  /**
+   * Global keydown interceptor — runs on every key press anywhere in the page.
+   * If a Zebra scanner sends keystrokes while the input doesn't have focus
+   * (e.g. Chrome address bar got it during a DOM re-render), this captures
+   * printable characters and Enter and routes them to our input, preventing
+   * the browser from navigating away.
+   */
+  @HostListener('document:keydown', ['$event'])
+  onDocumentKeydown(event: KeyboardEvent): void {
+    const active = document.activeElement;
+    const input = this.lpnInputRef?.nativeElement;
+    if (!input) return;
+
+    // If focus is already on our input, let onKeydown handle it normally.
+    if (active === input) return;
+
+    // Ignore modifier-only keys and browser shortcuts (Ctrl+*, Alt+*, F-keys, Tab).
+    if (event.ctrlKey || event.altKey || event.metaKey) return;
+    if (event.key === 'Tab' || event.key.startsWith('F')) return;
+
+    if (event.key === 'Enter') {
+      // Prevent Chrome from acting on Enter (e.g. activating focused link/button).
+      event.preventDefault();
+      input.focus();
+      const code = this.lpnInput.trim();
+      if (code.length >= 3) {
+        this.performSearch(code);
+      }
+      return;
+    }
+
+    // For printable characters: redirect focus to input and let the keystroke land.
+    if (event.key.length === 1) {
+      event.preventDefault();
+      input.focus();
+      // Manually append the character so it isn't lost.
+      this.lpnInput += event.key;
+      this.cdr.markForCheck();
+      // Feed through debounced search (manual typing path).
+      this.searchSubject.next(this.lpnInput);
+    }
   }
 
   // ─── Key events — barcode scan detection ─────────────────────────────────

@@ -24,12 +24,12 @@ class Settings(BaseSettings):
     # Database — SQLite for dev, Supabase/Heroku Postgres for prod
     DATABASE_URL: str = "sqlite+aiosqlite:///./farmascan.db"
 
-    # CORS — add your Netlify URL here via env var in Heroku
-    CORS_ORIGINS: list[str] = [
-        "http://localhost:4200",
-        "http://localhost:80",
-        "https://*.netlify.app",
-    ]
+    # CORS — comma-separated list (Heroku doesn't parse JSON arrays in env vars)
+    CORS_ORIGINS: str = "http://localhost:4200,http://localhost:80,https://*.netlify.app"
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
 
     # File processing
     UPLOAD_DIR: str = "uploads"

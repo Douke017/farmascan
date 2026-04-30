@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://your-backend.herokuapp.com',  // Update with your Heroku app URL
+  apiUrl: 'https://farmascan-api-3cde995fe628.herokuapp.com',
 };
